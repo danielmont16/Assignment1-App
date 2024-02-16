@@ -1,4 +1,5 @@
 package com.example.assignment1app;
+
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -11,27 +12,31 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class ReportApplication extends Application {
-    private final ObservableList<EducationData> data = FXCollections.observableArrayList();
+
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Report");
 
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("year");
         NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Revenue($ million)");
+
 
         LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setTitle("Statistics of Colleges and Universities in Canada");
-        lineChart.setPadding(new Insets(25,25,0,25));
+        lineChart.setPrefHeight(600);
 
         GridPane gridPane = new GridPane();
 
@@ -52,17 +57,19 @@ public class ReportApplication extends Application {
         GridPane.setRowIndex(button, 0);
         GridPane.setColumnIndex(button, 3);
 
-        GridPane.setRowIndex(rb1,0);
+        GridPane.setRowIndex(rb1, 0);
         GridPane.setColumnIndex(rb1, 1);
 
-        GridPane.setRowIndex(rb2,1);
+        GridPane.setRowIndex(rb2, 1);
         GridPane.setColumnIndex(rb2, 1);
 
-        GridPane.setRowIndex(rb3,2);
+        GridPane.setRowIndex(rb3, 2);
         GridPane.setColumnIndex(rb3, 1);
 
-        GridPane.setMargin(rb1,new Insets(25,0 ,0,0));
-        GridPane.setMargin(button,new Insets(25,0 ,0,100));
+        GridPane.setMargin(rb1, new Insets(10, 0, 0, 0));
+        GridPane.setMargin(rb2, new Insets(10, 0, 0, 0));
+        GridPane.setMargin(rb3, new Insets(10, 0, 10, 0));
+        GridPane.setMargin(button, new Insets(0, 0, 0, 100));
 
         gridPane.getChildren().addAll(rb1, rb2, rb3, button);
 
@@ -73,20 +80,29 @@ public class ReportApplication extends Application {
             lineChart.getData().clear();
             if (newValue == rb1) {
                 populateChartRevenue(lineChart);
+                yAxis.setLabel("Revenue($ million)");
             } else if (newValue == rb2) {
                 populateChartEmployment(lineChart);
+                yAxis.setLabel("Employment(Units)");
             } else if (newValue == rb3) {
                 populateChartWages(lineChart);
+                yAxis.setLabel("Wages($ million)");
             }
         });
 
-        VBox vbox = new VBox(lineChart,gridPane);
-        Scene scene = new Scene(vbox, 800 , 550);
+        primaryStage.setTitle("Report");
+        Image applicationIcon = new Image("file:src/main/resources/com/example/assignment1app/icon.png");
+        primaryStage.getIcons().add(applicationIcon);
+
+        VBox vbox = new VBox(lineChart, gridPane);
+        Scene scene = new Scene(vbox, 800, 550);
+        vbox.getStyleClass().add("vbox");
         scene.getStylesheets().add("file:src/main/java/com/example/assignment1app/styles.css");
+
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        button.setOnAction(e->secondStage());
+        button.setOnAction(e -> secondStage());
 
     }//end of start method
 
@@ -113,7 +129,7 @@ public class ReportApplication extends Application {
         showData(infoTable);
 
         VBox vbox1 = new VBox(infoTable);
-        Scene scene1 = new Scene(vbox1, 800 , 550);
+        Scene scene1 = new Scene(vbox1, 800, 550);
         scene1.getStylesheets().add("file:src/main/java/com/example/assignment1app/styles.css");
         secondStage.setScene(scene1);
         secondStage.show();
@@ -193,16 +209,14 @@ public class ReportApplication extends Application {
     }//end of populateChartWages method
 
     private void showData(TableView<EducationData> infoTable) {
+        ObservableList<EducationData> data = FXCollections.observableArrayList();
         DatabaseConnector dbConnector = new DatabaseConnector();
-
-
-
         try (Connection connection = dbConnector.connect()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM educationCanada");
             while (resultSet.next()) {
                 EducationData educationData = new EducationData(resultSet.getString("year"),
-                        resultSet.getString("revenue"), resultSet.getString("employment"),resultSet.getString("wages"));
+                        resultSet.getString("revenue"), resultSet.getString("employment"), resultSet.getString("wages"));
                 data.add(educationData);
             }
             infoTable.setItems(data);
@@ -210,7 +224,6 @@ public class ReportApplication extends Application {
             e.printStackTrace();
         }
     }//end of showDat method
-
 
 
     public static void main(String[] args) {

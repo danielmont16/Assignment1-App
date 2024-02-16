@@ -3,7 +3,6 @@ package com.example.assignment1app;
 public class EducationData {
     private final String year;
     private final String revenue;
-
     private final String employment;
     private final String wages;
 
