@@ -1,12 +1,59 @@
-/*
-.root{
-    -fx-font-size: 10pt;
-    -fx-font-family: "Courier New";
-    -fx-base: rgb(132, 145, 47);
-    -fx-background: rgb(225, 228, 203);
-}
-*/
 
 .vbox{
-    -fx-background: rgb(225, 255, 255);
+    -fx-background: #524aae;
+    -fx-font-family: "Helvetica";
+    -fx-text-fill: rgb(255, 255, 255);
+    -fx-font-size: 10pt;
+   }
+
+.vbox1{
+    -fx-background: #524aae;
+    -fx-font-family: "Helvetica";
+    -fx-text-fill: rgb(255, 255, 255);
+    -fx-font-size: 10pt;
+   }
+
+.button{
+    -fx-background-color: #716F81;
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+.button:hover{
+    -fx-background-color: #DFB951;
+}
+
+.reportTitle{
+    -fx-font-size: 14pt;
+    -fx-font-weight:100;
+    -fx-text-fill: #DFB951;
+    -fx-alignment: center;
+}
+
+.reportTitle:hover{
+     -fx-underline:true;
+}
+
+.source{
+  -fx-font-size: 8pt;
+}
+
+.tableViewTitle{
+    -fx-font-size: 14pt;
+    -fx-font-weight:100;
+    -fx-text-fill: #DFB951;
+    -fx-alignment: center;
+}
+
+.table-view .corner {
+    -fx-background-color: #DFB951;
+}
+
+.table-view .column-header {
+    -fx-background-color: #DFB951;
+}
+
+.table-view .table-cell{
+    -fx-border-color: transparent;
+    -fx-padding: 2 0 2 10px;
+    -fx-alignment:center;
 }

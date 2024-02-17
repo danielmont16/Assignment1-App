@@ -1,22 +1,18 @@
 package com.example.assignment1app;
-
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import org.w3c.dom.events.MouseEvent;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -24,18 +20,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class ReportApplication extends Application {
+    Scene scene, scene1;
 
     @Override
     public void start(Stage primaryStage) {
 
+    //Creating the first scene (graph-view)
         CategoryAxis xAxis = new CategoryAxis();
-        xAxis.setLabel("year");
+        xAxis.setLabel("Year");
         NumberAxis yAxis = new NumberAxis();
-        yAxis.setLabel("Revenue($ million)");
-
+        yAxis.setLabel("Revenue ($ million)");
 
         LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setTitle("Statistics of Colleges and Universities in Canada");
+
         lineChart.setPrefHeight(600);
 
         GridPane gridPane = new GridPane();
@@ -53,6 +50,7 @@ public class ReportApplication extends Application {
         rb3.setToggleGroup(group);
 
         Button button = new Button("Table View");
+        button.getStyleClass().add("button");
 
         GridPane.setRowIndex(button, 0);
         GridPane.setColumnIndex(button, 3);
@@ -80,13 +78,13 @@ public class ReportApplication extends Application {
             lineChart.getData().clear();
             if (newValue == rb1) {
                 populateChartRevenue(lineChart);
-                yAxis.setLabel("Revenue($ million)");
+                yAxis.setLabel("Revenue ($ million)");
             } else if (newValue == rb2) {
                 populateChartEmployment(lineChart);
-                yAxis.setLabel("Employment(Units)");
+                yAxis.setLabel("Employment (Units)");
             } else if (newValue == rb3) {
                 populateChartWages(lineChart);
-                yAxis.setLabel("Wages($ million)");
+                yAxis.setLabel("Wages ($ million)");
             }
         });
 
@@ -94,24 +92,33 @@ public class ReportApplication extends Application {
         Image applicationIcon = new Image("file:src/main/resources/com/example/assignment1app/icon.png");
         primaryStage.getIcons().add(applicationIcon);
 
-        VBox vbox = new VBox(lineChart, gridPane);
-        Scene scene = new Scene(vbox, 800, 550);
+        Label reportTitle = new Label("Statistics of Colleges and Universities in Canada");
+        reportTitle.setPrefWidth(800);
+        reportTitle.getStyleClass().add("reportTitle");
+
+        Label source = new Label("Source: Guirguis, J. (2024, February 2). Colleges & Universities in Canada. Ibisworld;https://my.ibisworld.com/ca/en/industry/61131aca/at-a-glance");
+        source.setPrefWidth(800);
+        source.getStyleClass().add("source");
+
+        VBox vbox = new VBox(reportTitle,lineChart, gridPane,source);
+        VBox.setMargin(reportTitle, new Insets(15,0,15,0));
+        VBox.setMargin(source, new Insets(25,0,0,0));
+
+        scene = new Scene(vbox, 800, 550);
+
         vbox.getStyleClass().add("vbox");
         scene.getStylesheets().add("file:src/main/java/com/example/assignment1app/styles.css");
 
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        button.setOnAction(e -> secondStage());
+        button.setOnAction(e -> primaryStage.setScene(scene1));
 
-    }//end of start method
-
-    private void secondStage() {
-        //        creating second stage
-        Stage secondStage = new Stage();
-        secondStage.setTitle("Table view");
+        //Creating second scene1 (table-view)
 
         TableView<EducationData> infoTable = new TableView<>();
+        infoTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
         TableColumn<EducationData, String> yearColumn = new TableColumn<>("year");
         yearColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getYear()));
 
@@ -128,12 +135,38 @@ public class ReportApplication extends Application {
 
         showData(infoTable);
 
-        VBox vbox1 = new VBox(infoTable);
-        Scene scene1 = new Scene(vbox1, 800, 550);
+        Label tableViewTitle = new Label("Statistics");
+        tableViewTitle.getStyleClass().add("tableViewTitle");
+
+        GridPane containerTable = new GridPane();
+        GridPane.setRowIndex(infoTable, 0);
+        GridPane.setColumnIndex(infoTable, 1);
+
+        containerTable.getChildren().add(infoTable);
+        containerTable.setPrefWidth(800);
+        containerTable.setAlignment(Pos.CENTER);
+
+        Label source1 = new Label("Source: Guirguis, J. (2024, February 2). Colleges & Universities in Canada. Ibisworld;https://my.ibisworld.com/ca/en/industry/61131aca/at-a-glance");
+        source1.setPrefWidth(800);
+        source1.getStyleClass().add("source");
+
+        Button button1 = new Button("Graph View");
+
+
+        VBox vbox1 = new VBox(tableViewTitle,containerTable, button1,source1);
+
+        VBox.setMargin(tableViewTitle, new  Insets(25,0,10,0));
+        VBox.setMargin(containerTable, new  Insets(25,25,10,25));
+        VBox.setMargin(source1, new Insets(25,0,0,0));
+        vbox1.setAlignment(Pos.TOP_CENTER);
+
+
+        scene1 = new Scene(vbox1, 800, 550);
+        vbox1.getStyleClass().add("vbox1");
         scene1.getStylesheets().add("file:src/main/java/com/example/assignment1app/styles.css");
-        secondStage.setScene(scene1);
-        secondStage.show();
-    }//end of secondStage method
+        button1.setOnAction(e -> primaryStage.setScene(scene));
+
+    }//end of start method
 
     private void populateChartRevenue(LineChart<String, Number> lineChart) {
 
@@ -223,7 +256,7 @@ public class ReportApplication extends Application {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }//end of showDat method
+    }//end of showData method
 
 
     public static void main(String[] args) {
