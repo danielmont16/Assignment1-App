@@ -1,5 +1,15 @@
-package com.example.assignment1app;
+/**
+ * JavaFX's application.
+ * Purpose: Graphical user interface that will allow users to retrieve and visualize data from a MySQL database.
+ *The application will provide both graphs and charts based on the retrieved data.
+ * Author: Daniel Montenegro
+ * Date: March 4, 2024
+ */
 
+package com.example.assignment1app;
+/**
+ * The following class establish the model of the tableview.
+ */
 public class EducationData {
     private final String year;
     private final String revenue;

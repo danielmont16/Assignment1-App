@@ -1,3 +1,11 @@
+/**
+ * JavaFX's application.
+ * Purpose: Graphical user interface that will allow users to retrieve and visualize data from a MySQL database.
+ *The application will provide both graphs and charts based on the retrieved data.
+ * Author: Daniel Montenegro
+ * Date: March 4, 2024
+ */
+
 package com.example.assignment1app;
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
@@ -15,13 +23,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.List;
 
 public class ReportApplication extends Application {
     Scene scene, scene1;
+
     @Override
     public void start(Stage primaryStage) {
 
-    //Creating the first scene (graph-view)
+        //Creating first scene (graph-view)
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Year");
         NumberAxis yAxis = new NumberAxis();
@@ -96,13 +107,14 @@ public class ReportApplication extends Application {
         source.setPrefWidth(800);
         source.getStyleClass().add("source");
 
-        VBox vbox = new VBox(reportTitle,lineChart, gridPane,source);
-        VBox.setMargin(reportTitle, new Insets(15,0,15,0));
-        VBox.setMargin(source, new Insets(25,0,0,0));
+        VBox vbox = new VBox(reportTitle, lineChart, gridPane, source);
+        VBox.setMargin(reportTitle, new Insets(15, 0, 15, 0));
+        VBox.setMargin(source, new Insets(25, 0, 0, 0));
 
         scene = new Scene(vbox, 800, 550);
 
         vbox.getStyleClass().add("vbox");
+        //using a .css file to style the scene
         scene.getStylesheets().add("file:src/main/java/com/example/assignment1app/styles.css");
 
         primaryStage.setScene(scene);
@@ -110,7 +122,7 @@ public class ReportApplication extends Application {
 
         button.setOnAction(e -> primaryStage.setScene(scene1));
 
-        //Creating second scene1 (table-view)
+        //Creating second scene (table-view)
 
         TableView<EducationData> infoTable = new TableView<>();
         infoTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
@@ -127,7 +139,8 @@ public class ReportApplication extends Application {
         TableColumn<EducationData, String> wagesColumn = new TableColumn<>("wages");
         wagesColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getWages()));
 
-        infoTable.getColumns().addAll(yearColumn, revenueColumn, employmentColumn, wagesColumn);
+        List<TableColumn<EducationData, String>> columnList = Arrays.asList(yearColumn, revenueColumn, employmentColumn, wagesColumn);
+        infoTable.getColumns().addAll(columnList);
 
         showData(infoTable);
 
@@ -148,22 +161,27 @@ public class ReportApplication extends Application {
 
         Button button1 = new Button("Graph View");
 
+        VBox vbox1 = new VBox(tableViewTitle, containerTable, button1, source1);
 
-        VBox vbox1 = new VBox(tableViewTitle,containerTable, button1,source1);
-
-        VBox.setMargin(tableViewTitle, new  Insets(25,0,10,0));
-        VBox.setMargin(containerTable, new  Insets(25,25,10,25));
-        VBox.setMargin(source1, new Insets(25,0,0,0));
+        VBox.setMargin(tableViewTitle, new Insets(25, 0, 10, 0));
+        VBox.setMargin(containerTable, new Insets(25, 25, 10, 25));
+        VBox.setMargin(source1, new Insets(25, 0, 0, 0));
         vbox1.setAlignment(Pos.TOP_CENTER);
 
 
         scene1 = new Scene(vbox1, 800, 550);
         vbox1.getStyleClass().add("vbox1");
+        //using a .css file to style the scene
         scene1.getStylesheets().add("file:src/main/java/com/example/assignment1app/styles.css");
+
+        //using one button to switch between scenes
         button1.setOnAction(e -> primaryStage.setScene(scene));
 
     }//end of start method
 
+    /**
+     * The following method populates the graph with the Revenue data from DataBase.
+     */
     private void populateChartRevenue(LineChart<String, Number> lineChart) {
 
         DatabaseConnector dbConnector = new DatabaseConnector();
@@ -187,8 +205,19 @@ public class ReportApplication extends Application {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        finally {
+            try {
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
     }//end of populateChartRevenue method
 
+    /**
+     * The following method populates the graph with the Employment data from DataBase.
+     */
     private void populateChartEmployment(LineChart<String, Number> lineChart) {
         DatabaseConnector dbConnector = new DatabaseConnector();
         Connection connection = dbConnector.connect();
@@ -211,8 +240,19 @@ public class ReportApplication extends Application {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        finally {
+            try {
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }//end of populateChartEmployment method
 
+    /**
+     * The following method populates the graph with the Wages data from DataBase.
+     */
     private void populateChartWages(LineChart<String, Number> lineChart) {
         DatabaseConnector dbConnector = new DatabaseConnector();
         Connection connection = dbConnector.connect();
@@ -235,12 +275,24 @@ public class ReportApplication extends Application {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        finally {
+            try {
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }//end of populateChartWages method
 
+    /**
+     * The following method populates the Table with all data from DataBase.
+     */
     private void showData(TableView<EducationData> infoTable) {
         ObservableList<EducationData> data = FXCollections.observableArrayList();
         DatabaseConnector dbConnector = new DatabaseConnector();
-        try (Connection connection = dbConnector.connect()) {
+        Connection connection = dbConnector.connect();
+        try {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM educationCanada");
             while (resultSet.next()) {
@@ -251,6 +303,13 @@ public class ReportApplication extends Application {
             infoTable.setItems(data);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        finally {
+            try {
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }//end of showData method
 
