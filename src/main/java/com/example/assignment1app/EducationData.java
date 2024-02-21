@@ -6,7 +6,6 @@ public class EducationData {
     private final String employment;
     private final String wages;
 
-
     public EducationData(String year, String revenue, String employment, String wages) {
         this.year = year;
         this.revenue = revenue;
